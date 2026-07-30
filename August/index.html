@@ -92,7 +92,8 @@
 
 <script>
 (function () {
-  var ENDPOINT = "https://formsubmit.co/ajax/sustainoc@okanagan.bc.ca";
+  var ENDPOINT = "https://api.web3forms.com/submit";
+  var ACCESS_KEY = "1f1eab8e-d4ea-4d62-b16a-00e407f0ebcd";
   var ROLE_ON = "font-family:inherit; font-size:14px; font-weight:600; cursor:pointer; padding:10px 18px; border-radius:999px; border:1.5px solid #005f63; background:#005f63; color:#fff;", ROLE_OFF = "font-family:inherit; font-size:14px; font-weight:600; cursor:pointer; padding:10px 18px; border-radius:999px; border:1.5px solid #cedfaf; background:#fff; color:#3a514d;";
   var ROW_ON = "display:flex; align-items:center; gap:12px; width:100%; cursor:pointer; background:#f3f8ec; border:1.5px solid #8aa255; border-radius:12px; padding:13px 15px; font-family:inherit; text-align:left;", ROW_OFF = "display:flex; align-items:center; gap:12px; width:100%; cursor:pointer; background:#fff; border:1.5px solid #cedfaf; border-radius:12px; padding:13px 15px; font-family:inherit; text-align:left;";
   var BOX_ON = "flex:none; width:24px; height:24px; border-radius:7px; display:flex; align-items:center; justify-content:center; font-size:15px; font-weight:800; color:#fff; background:#8aa255;", BOX_OFF = "flex:none; width:24px; height:24px; border-radius:7px; display:flex; align-items:center; justify-content:center; font-size:15px; font-weight:800; color:#fff; background:#dbe6c9;";
@@ -169,17 +170,20 @@
       method: "POST",
       headers: { "Content-Type": "application/json", Accept: "application/json" },
       body: JSON.stringify({
-        _subject: "New August Clean-Air Kit Pledge",
+        access_key: ACCESS_KEY,
+        subject: "New August Clean-Air Kit Pledge",
         Name: name,
         Email: email,
         Role: role || "Not specified",
         Pledge: picked.join("; ") || "None selected"
       })
     }).then(function (res) {
-      if (!res.ok) throw new Error("bad status");
-      document.getElementById("formState").hidden = true;
-      document.getElementById("doneState").hidden = false;
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      return res.json().then(function (data) {
+        if (!res.ok || !data.success) throw new Error("bad status");
+        document.getElementById("formState").hidden = true;
+        document.getElementById("doneState").hidden = false;
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
     }).catch(function () {
       setSending(false);
       fail("Something went wrong sending your pledge. Please try again, or email sustainoc@okanagan.bc.ca directly.");
